@@ -1,0 +1,41 @@
+#1 Count 
+# It allows you to group columns in your model and base tables, and count their values, making for easy comparison.
+SELECT
+   YEAR(ordered_at) AS year,
+   COUNT(order_id)
+FROM order_details
+
+
+
+#2 ROW_NUMBER()rranges values based on a specified partition and order. 
+# You specify what to partition, or group the values by, as well as the order to sort the values within those groups.
+SELECT
+   first_name,
+   ROW_NUMBER() OVER(PARTITION BY gender ORDER BY score DESC) AS rank_by_gender
+FROM student_scores
+
+
+#3 DATEDIFF() calculates the time between two dates or timestamps in the unit that you specify.
+SELECT
+   user_id,
+   device,
+   session_started_at,
+   session_ended_at,
+   DATEDIFF(second, session_started_at, session_ended_at) AS session_duration
+FROM user_sessions
+
+#4 CAST() ensures all of your dates and timestamps are of the same type.
+SELECT
+   ad_id,
+   ad_name,
+   platform,
+   CAST(date_created AS date) AS date_created,
+   CAST(created_at AS timestamp_ntz) AS created_at
+FROM ads
+
+
+#5 SUM()
+SELECT
+   SUM(product_quantity)
+FROM order_details
+WHERE ‘2021–01–01 <= order_date <= ‘2021–01–31’
