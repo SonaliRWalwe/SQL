@@ -1,0 +1,14 @@
+# https://towardsdatascience.com/bigquery-functions-for-data-cleaning-4b96181fbc3
+# For Invisible Special Charaters which cause the results to come back as 0 items found, use normalize
+
+SELECT * FROM sample
+WHERE NORMALIZE (name, NFKC) ='Jane Doe'
+# BigQuery also has a NORMALIZE_AND_CASEFOLD function if you want string comparison to be case insensitive, 
+# i.e. records containing Jane Doe or jane doe, will be returned in the query results
+
+#Pattern Matching
+SELECT * FROM sample
+WHERE CONTAINS_SUBSTR (color, 'green' );
+
+#ENDS_WITH function to check if a string ends with a pattern. A common use case I could’ve used this for was checking if an email ends wth something you are looking for
+
