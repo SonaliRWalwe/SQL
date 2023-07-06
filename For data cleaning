@@ -12,3 +12,27 @@ WHERE CONTAINS_SUBSTR (color, 'green' );
 
 #ENDS_WITH function to check if a string ends with a pattern. A common use case I could’ve used this for was checking if an email ends wth something you are looking for
 
+
+## extracting data from multiple sources
+1. 
+SELECT * FROM customers WHERE country = 'USA';
+2. 
+LOAD DATA INFILE '/path/to/file.csv'
+INTO TABLE customers
+FIELDS TERMINATED BY ',' ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+3.
+IMPORT REQUESTS
+RESPONSE = REQUESTS.GET('https://api.example.com/endpoint')
+DATA = RESPONSE.JSON()
+PRINT(DATA)
+
+##Transforming 
+1.
+SELECT LOWER(name) AS lower_name FROM customers;
+2. 
+SELECT name AS full_name FROM customers;
+3. 
+SELECT * FROM customers
+UNION ALL
+SELECT * FROM orders;
