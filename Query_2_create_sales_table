@@ -1,0 +1,44 @@
+#Creating the Sales Fact Table
+CREATE TABLE sales_fact (
+    sales_id INT PRIMARY KEY,
+    customer_id INT,
+    product_id INT,
+    date_id INT,
+    quantity INT,
+    total_amount DECIMAL(10, 2),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (date_id) REFERENCES dates(date_id)
+);
+
+1. Creating the Customers Dimension Table
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(20),
+    country VARCHAR(50)
+);
+
+2. Creating the Products Dimension Table
+CREATE TABLE products (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(255),
+    category VARCHAR(50),
+    price DECIMAL(10, 2)
+);
+
+3. Creating the Dates Dimension Table
+CREATE TABLE dates (
+    date_id INT PRIMARY KEY,
+    date DATE,
+    day INT,
+    month INT,
+    year INT,
+    day_of_week VARCHAR(10)
+);
+
+
+
+
