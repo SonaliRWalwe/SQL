@@ -1,0 +1,128 @@
+# -this query is being used in a tableau dashboard by a BI Developer
+SELECT patient_id
+	,total_cost DATE
+	,CASE 
+		WHEN PROCEDURE_CODE  BETWEEN '9990'
+				AND '10000'
+			AND age BETWEEN 30
+				AND 40
+			THEN 'category 1'
+		WHEN PROCEDURE_CODE BETWEEN '9980'
+				AND '9990'
+			AND age BETWEEN 40
+				AND 50
+			THEN 'category 2'
+		ELSE 'No Category'
+		END
+FROM patient_claims
+
+
+# -- this query is an adhoc query just meant to filter out category 2 by a data analyst on a different team
+SELECT patient_id
+	,total_cost DATE
+FROM patient_claims
+WHERE PROCEDURE_CODE BETWEEN '9980'
+		AND '9990'
+	AND age BETWEEN 40
+		AND 50
+
+----------------------------------------------------------------------------------------
+SELECT CASE 
+		WHEN id = 1
+			THEN 'category 1'
+		WHEN id = 2
+			THEN 'category 2'
+		WHEN id = 3
+			THEN 'category 3'
+		WHEN id = 4
+			THEN 'category 4'
+		WHEN id = 5
+			THEN 'category 5'
+		WHEN id = 6
+			THEN 'category 6'
+		WHEN id = 7
+			THEN 'category 7'
+		WHEN id = 8
+			THEN 'category 8'
+		WHEN id IN (
+				9
+				,10
+				,11
+				)
+			THEN 'category 9'
+		END
+FROM dim_procedures
+
+------------------------------------------------------------------------------
+
+WITH elig_months
+AS (
+	SELECT  e.patient_id
+		,d.first_of_month elig_month
+	FROM eligibility e
+	JOIN dim_date d ON d.DATE BETWEEN e.start_date
+			AND e.end_date
+	)
+	,elig_9_months
+AS (
+	SELECT patient_id
+	FROM (
+		SELECT patient_id
+			,count(DISTINCT elig_month) total_months
+		FROM elig_months
+		WHERE year(elig_month) = 2019
+		GROUP BY patient_id
+		) t1
+	WHERE total_months >= 9
+	)
+	,category_A
+AS (
+	SELECT min(claim_date) first_claim_date
+		,patient_id
+	FROM claims c
+	JOIN elig_9_months em ON em c.patient_id = em.patient_id
+	WHERE procedure_code BETWEEN '9990'
+			AND '10001'
+		AND age BETWEEN 40
+			AND 50
+	GROUP BY patient_id
+	)
+	,category_B
+AS (
+	SELECT *
+	FROM category_A
+	WHERE date_diff('day', first_claim_date, claim_date) > 30
+		AND procedure_code BETWEEN '10002'
+			AND '10301'
+	)
+	,category_C
+AS (
+	SELECT max(CASE 
+				WHEN a.patient_id IS NULL
+					THEN 1
+				ELSE 0
+				END) is_category_A
+		,patient_id
+	FROM claims c
+	JOIN elig_9_months em ON em c.patient_id = em.patient_id
+	LEFT JOIN category_A a ON a.patient_id = em.patient_id
+	WHERE procedure_code BETWEEN '9950'
+			AND '9970'
+		AND age BETWEEN 40
+			AND 50
+	)
+select case when total_patient_c != 0 then 
+total_patient_b*1.0/total_patient_c 
+else total_patient_b
+end,
+county, state
+from
+(SELECT count(DISTINCT b.patient_id) total_patient_b
+	,sum(case when is_category_a then 1 else 0 end) total_patient_c county
+	,STATE
+FROM category_B b
+FULL JOIN   c ON c.patient_id = b.patient_id
+JOIN patient p ON p.patient_id = c.patient_id
+JOIN county cc ON p.zipcode = cc.zipcode
+)
+
